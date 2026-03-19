@@ -1,0 +1,9 @@
+app/dashboard/student/messages/page.tsx
+কী কী আছে:
+
+✅ Support Team — সবার আগে দেখাবে, সাথে সাথে chat করা যাবে
+✅ Instructor list — MongoDB থেকে সব instructor আসবে, যেকোনো instructor-কে message করা যাবে
+✅ Emoji picker — 😊 button click করলে খুলবে
+✅ Voice recording — 🎤 button click করে record করুন, preview দেখুন, send করুন
+✅ Real-time — message সাথে সাথে যাবে
+✅ Typing indicator — কেউ লিখলে দেখাবে
