@@ -6,9 +6,7 @@ import mongoose from "mongoose";
 import jwt from "jsonwebtoken";
 import Stripe from "stripe";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
-  apiVersion: "2024-12-27",
-});
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string);
 
 function getDecoded(req: NextRequest) {
   let token = req.cookies.get("token")?.value;
