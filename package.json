@@ -1,14 +1,12 @@
 {
-  "name": "ai-powered-learning-management-system",
-  "version": "0.1.0",
+  "name": "lms-system",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "next dev -p 3000",
+    "dev": "next dev",
     "build": "next build",
-    "start": "next start -p $PORT",
-    "lint": "eslint",
-    "socket": "ts-node -r dotenv/config src/server/socket-server.ts dotenv_config_path=.env.local",
-    "socket:dev": "nodemon --exec ts-node src/server/socket-server.ts"
+    "start": "next start",
+    "lint": "next lint"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.78.0",
@@ -49,7 +47,7 @@
     "@types/nodemailer": "^7.0.11",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "eslint": "^9",
+    "eslint": "^8",
     "eslint-config-next": "^15.3.3",
     "mongodb-memory-server": "^11.0.1",
     "tailwindcss": "^4",
