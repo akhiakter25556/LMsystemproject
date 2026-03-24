@@ -41,11 +41,11 @@ export async function connectDB() {
         dbName: "learning-management",
       })
       .then((conn) => {
-        console.log("✅ MongoDB connected:", conn.connection.db?.databaseName);
+
         return conn;
       })
       .catch((error) => {
-        console.error("❌ MongoDB failed:", error.message);
+
         cached.promise = null;
         cached.conn = null;
         throw error;

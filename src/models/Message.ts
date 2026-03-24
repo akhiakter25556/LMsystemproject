@@ -5,20 +5,26 @@ export interface IMessageDocument extends Document {
   senderId: mongoose.Types.ObjectId;
   receiverId: mongoose.Types.ObjectId;
   conversationId?: mongoose.Types.ObjectId;
+  roomId: string; // For socket.io room support
   
   content: string;
-  messageType: "text" | "image" | "file" | "system";
+  messageType: "text" | "image" | "file" | "voice" | "system";
   
   // File/Image specific fields
   fileUrl?: string;
   fileName?: string;
   fileSize?: number;
+  voiceData?: string; // Base64 encoded voice data
   
   // Message status
   isRead: boolean;
   readAt?: Date;
   isDeleted: boolean;
   deletedAt?: Date;
+  
+  // Sender info (for quick access in socket)
+  senderName: string;
+  senderRole: string;
   
   // System message fields
   systemMessageType?: "enrollment" | "course_update" | "payment" | "certificate";
@@ -38,11 +44,16 @@ const MessageSchema = new Schema<IMessageDocument>(
     receiverId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
-      required: true,
+      required: false, // For group messages or support messages
     },
     conversationId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Conversation",
+    },
+    roomId: {
+      type: String,
+      required: true,
+      index: true,
     },
     
     content: {
@@ -53,7 +64,7 @@ const MessageSchema = new Schema<IMessageDocument>(
     },
     messageType: {
       type: String,
-      enum: ["text", "image", "file", "system"],
+      enum: ["text", "image", "file", "voice", "system"],
       default: "text",
     },
     
@@ -69,6 +80,9 @@ const MessageSchema = new Schema<IMessageDocument>(
     fileSize: {
       type: Number,
       min: 0,
+    },
+    voiceData: {
+      type: String, // Base64 encoded voice data
     },
     
     // Status fields
@@ -87,6 +101,18 @@ const MessageSchema = new Schema<IMessageDocument>(
       type: Date,
     },
     
+    // Sender info (denormalized for performance)
+    senderName: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    senderRole: {
+      type: String,
+      required: true,
+      enum: ["student", "instructor", "admin"],
+    },
+    
     // System message fields
     systemMessageType: {
       type: String,
@@ -102,6 +128,7 @@ const MessageSchema = new Schema<IMessageDocument>(
 // ─── Indexes ──────────────────────────────────────────────────────────────────
 MessageSchema.index({ senderId: 1, receiverId: 1 });
 MessageSchema.index({ conversationId: 1, createdAt: -1 });
+MessageSchema.index({ roomId: 1, createdAt: -1 }); // For socket.io room messages
 MessageSchema.index({ receiverId: 1, isRead: 1 });
 MessageSchema.index({ createdAt: -1 });
 MessageSchema.index({ isDeleted: 1 });
@@ -134,10 +161,38 @@ MessageSchema.statics.getConversation = function(userId1: string, userId2: strin
     .limit(limit);
 };
 
+// Get messages by roomId (for socket.io)
+MessageSchema.statics.getRoomMessages = function(roomId: string, limit: number = 50) {
+  return this.find({
+    roomId,
+    isDeleted: false
+  })
+    .sort({ createdAt: -1 })
+    .limit(limit)
+    .lean();
+};
+
 MessageSchema.statics.markConversationAsRead = function(userId: string, otherUserId: string) {
   return this.updateMany(
     {
       senderId: otherUserId,
+      receiverId: userId,
+      isRead: false
+    },
+    {
+      $set: {
+        isRead: true,
+        readAt: new Date()
+      }
+    }
+  );
+};
+
+// Mark room messages as read
+MessageSchema.statics.markRoomAsRead = function(roomId: string, userId: string) {
+  return this.updateMany(
+    {
+      roomId,
       receiverId: userId,
       isRead: false
     },

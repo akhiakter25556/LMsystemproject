@@ -71,7 +71,6 @@ export async function POST(req: NextRequest) {
 
     if (!geminiRes.ok) {
       const err = await geminiRes.json();
-      console.error("Gemini Error:", err);
       return NextResponse.json(
         { error: "Gemini API সমস্যা হয়েছে" },
         { status: 500 }
@@ -85,7 +84,6 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ message: assistantMessage });
   } catch (error) {
-    console.error("AI Chat Error:", error);
     return NextResponse.json(
       { error: "Server সমস্যা হয়েছে" },
       { status: 500 }

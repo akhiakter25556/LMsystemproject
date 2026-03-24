@@ -246,7 +246,6 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ success: true, enrollments: enriched, total: enriched.length });
 
   } catch (error: any) {
-    console.error("GET /api/enrollments:", error);
     return NextResponse.json({ error: `Failed: ${error.message}` }, { status: 500 });
   }
 }
@@ -509,7 +508,6 @@ export async function PUT(req: NextRequest) {
     return NextResponse.json({ success: true, enrollment: updated });
 
   } catch (error: any) {
-    console.error("PUT /api/enrollments:", error);
     return NextResponse.json({ error: `Failed: ${error.message}` }, { status: 500 });
   }
 }

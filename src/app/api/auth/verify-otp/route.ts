@@ -64,7 +64,6 @@ export async function POST(req: NextRequest) {
 
     return response;
   } catch (err: any) {
-    console.error("❌ Verify OTP error:", err.message);
     return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }

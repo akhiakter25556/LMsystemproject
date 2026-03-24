@@ -60,7 +60,6 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ success: true, notifications: enriched, unreadCount }, { status: 200 });
 
   } catch (error: any) {
-    console.error("GET /api/notifications error:", error);
     return NextResponse.json({ error: "Failed to fetch notifications" }, { status: 500 });
   }
 }
@@ -122,8 +121,6 @@ export async function POST(req: NextRequest) {
     }, { status: 201 });
 
   } catch (error: any) {
-    console.error("POST /api/notifications error:", error);
-
     if (error.name === "CastError") {
       return NextResponse.json({ error: `Invalid ID: ${error.path}` }, { status: 400 });
     }
@@ -242,7 +239,6 @@ export async function PUT(req: NextRequest) {
     });
 
   } catch (error: any) {
-    console.error("PUT /api/notifications error:", error);
     return NextResponse.json({ error: `Failed to update: ${error.message}` }, { status: 500 });
   }
 }
@@ -275,7 +271,6 @@ export async function DELETE(req: NextRequest) {
     return NextResponse.json({ success: true, message: "Deleted successfully" });
 
   } catch (error: any) {
-    console.error("DELETE /api/notifications error:", error);
     return NextResponse.json({ error: "Failed to delete" }, { status: 500 });
   }
 }

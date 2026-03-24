@@ -159,7 +159,6 @@ export async function POST(req: NextRequest) {
     });
 
   } catch (error: any) {
-    console.error("❌ POST /api/transactions/checkout:", error.message);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
@@ -226,7 +225,6 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ success: true, status: "succeeded" });
 
   } catch (error: any) {
-    console.error("❌ GET /api/transactions/checkout:", error.message);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }

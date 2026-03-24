@@ -49,12 +49,10 @@ export async function POST(req: NextRequest) {
 
     // ✅ OTP তৈরি করো এবং save করো
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    console.log("🔢 Generated OTP:", otp, "for", email);
     
     user.resetToken = otp;
     user.resetTokenExpiry = new Date(Date.now() + 10 * 60 * 1000); // 10 min
     await user.save();
-    console.log("✅ OTP saved to database");
 
     // ✅ OTP email পাঠাও (background এ, await করবো না)
     transporter.sendMail({
@@ -146,9 +144,9 @@ export async function POST(req: NextRequest) {
         </html>
       `,
     }).then(() => {
-      console.log("📧 OTP email sent successfully to:", email);
+      // Email sent successfully
     }).catch((emailError) => {
-      console.error("❌ Email send failed:", emailError.message);
+      // Email send failed - log for debugging but don't block login
     });
 
     // ✅ Token দেওয়া হবে না এখন — OTP verify হলে দেওয়া হবে
@@ -160,7 +158,6 @@ export async function POST(req: NextRequest) {
     });
 
   } catch (err: any) {
-    console.error("❌ Login error:", err.message);
     return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }

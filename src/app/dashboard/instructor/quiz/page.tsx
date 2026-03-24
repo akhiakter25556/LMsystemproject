@@ -11,7 +11,10 @@ import {
   Eye,
   Award,
   CheckCircle,
-  Search
+  Search,
+  MoreVertical,
+  Copy,
+  Settings
 } from 'lucide-react';
 
 interface Quiz {
@@ -24,18 +27,24 @@ interface Quiz {
   passMarks: number;
   status: 'Published' | 'Draft';
   attempts?: number;
+  description?: string;
+  createdDate?: string;
 }
 
 export default function InstructorQuizPage() {
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState<number | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [filterStatus, setFilterStatus] = useState('All Status');
   const [theme, setTheme] = useState("light");
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [quizzes, setQuizzes] = useState<Quiz[]>([]);
 
   // Form states
   const [formData, setFormData] = useState({
     course: '',
     title: '',
+    description: '',
     questions: '',
     totalMarks: '',
     passMarks: '',
@@ -59,66 +68,80 @@ export default function InstructorQuizPage() {
     return () => clearInterval(interval);
   }, [theme]);
 
-  const quizData: Quiz[] = [
-    {
-      id: 1,
-      title: "Information About UI/UX Design Degree",
-      course: "UI/UX Design Fundamentals",
-      questions: 25,
-      duration: "30 Minutes",
-      totalMarks: 100,
-      passMarks: 60,
-      status: "Published",
-      attempts: 45
-    },
-    {
-      id: 2,
-      title: "Learn JavaScript and Express to become a Expert",
-      course: "JavaScript Development",
-      questions: 15,
-      duration: "25 Minutes",
-      totalMarks: 75,
-      passMarks: 45,
-      status: "Published",
-      attempts: 32
-    },
-    {
-      id: 3,
-      title: "Introduction to Python Programming",
-      course: "Python Basics",
-      questions: 22,
-      duration: "15 Minutes",
-      totalMarks: 50,
-      passMarks: 30,
-      status: "Draft",
-      attempts: 0
-    },
-    {
-      id: 4,
-      title: "Build Responsive Websites with HTML5 and CSS3",
-      course: "Web Development",
-      questions: 30,
-      duration: "50 Minutes",
-      totalMarks: 150,
-      passMarks: 90,
-      status: "Published",
-      attempts: 68
-    },
-    {
-      id: 5,
-      title: "Information About Photoshop Design Degree",
-      course: "Graphic Design",
-      questions: 20,
-      duration: "20 Minutes",
-      totalMarks: 80,
-      passMarks: 48,
-      status: "Published",
-      attempts: 28
-    },
-  ];
+  // Initialize quizzes
+  useEffect(() => {
+    const initialQuizzes: Quiz[] = [
+      {
+        id: 1,
+        title: "Information About UI/UX Design Degree",
+        course: "UI/UX Design Fundamentals",
+        questions: 25,
+        duration: "30 Minutes",
+        totalMarks: 100,
+        passMarks: 60,
+        status: "Published",
+        attempts: 45,
+        description: "Comprehensive UI/UX design assessment",
+        createdDate: "2025-08-20"
+      },
+      {
+        id: 2,
+        title: "Learn JavaScript and Express to become a Expert",
+        course: "JavaScript Development",
+        questions: 15,
+        duration: "25 Minutes",
+        totalMarks: 75,
+        passMarks: 45,
+        status: "Published",
+        attempts: 32,
+        description: "JavaScript and Express fundamentals",
+        createdDate: "2025-08-18"
+      },
+      {
+        id: 3,
+        title: "Introduction to Python Programming",
+        course: "Python Basics",
+        questions: 22,
+        duration: "15 Minutes",
+        totalMarks: 50,
+        passMarks: 30,
+        status: "Draft",
+        attempts: 0,
+        description: "Basic Python programming concepts",
+        createdDate: "2025-08-15"
+      },
+      {
+        id: 4,
+        title: "Build Responsive Websites with HTML5 and CSS3",
+        course: "Web Development",
+        questions: 30,
+        duration: "50 Minutes",
+        totalMarks: 150,
+        passMarks: 90,
+        status: "Published",
+        attempts: 68,
+        description: "Responsive web design with HTML5 and CSS3",
+        createdDate: "2025-08-10"
+      },
+      {
+        id: 5,
+        title: "Information About Photoshop Design Degree",
+        course: "Graphic Design",
+        questions: 20,
+        duration: "20 Minutes",
+        totalMarks: 80,
+        passMarks: 48,
+        status: "Published",
+        attempts: 28,
+        description: "Photoshop design fundamentals",
+        createdDate: "2025-08-05"
+      },
+    ];
+    setQuizzes(initialQuizzes);
+  }, []);
 
   // Filter quizzes
-  const filteredQuizzes = quizData.filter(quiz => {
+  const filteredQuizzes = quizzes.filter(quiz => {
     const matchesSearch =
       quiz.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       quiz.course.toLowerCase().includes(searchQuery.toLowerCase());
@@ -130,36 +153,117 @@ export default function InstructorQuizPage() {
 
   // Count stats
   const stats = {
-    total: quizData.length,
-    published: quizData.filter(q => q.status === 'Published').length,
-    draft: quizData.filter(q => q.status === 'Draft').length,
-    totalAttempts: quizData.reduce((sum, q) => sum + (q.attempts || 0), 0),
+    total: quizzes.length,
+    published: quizzes.filter(q => q.status === 'Published').length,
+    draft: quizzes.filter(q => q.status === 'Draft').length,
+    totalAttempts: quizzes.reduce((sum, q) => sum + (q.attempts || 0), 0),
   };
 
+  // Handle Delete
   const handleDelete = (id: number) => {
-    if (confirm('Are you sure you want to delete this quiz?')) {
-      console.log('Deleting quiz:', id);
-      // Add delete logic here
-    }
+    setQuizzes(quizzes.filter(q => q.id !== id));
+    setShowDeleteConfirm(null);
+    alert('Quiz deleted successfully!');
   };
 
+  // Handle Edit
+  const handleEdit = (quiz: Quiz) => {
+    setFormData({
+      course: quiz.course,
+      title: quiz.title,
+      description: quiz.description || '',
+      questions: quiz.questions.toString(),
+      totalMarks: quiz.totalMarks.toString(),
+      passMarks: quiz.passMarks.toString(),
+      duration: quiz.duration.replace(' Minutes', ':00').padStart(5, '0')
+    });
+    setEditingId(quiz.id);
+    setShowCreateModal(true);
+  };
+
+  // Handle Duplicate
+  const handleDuplicate = (quiz: Quiz) => {
+    const newQuiz: Quiz = {
+      ...quiz,
+      id: Math.max(...quizzes.map(q => q.id), 0) + 1,
+      title: `${quiz.title} (Copy)`,
+      status: 'Draft',
+      attempts: 0,
+      createdDate: new Date().toISOString().split('T')[0]
+    };
+    setQuizzes([...quizzes, newQuiz]);
+    alert('Quiz duplicated successfully!');
+  };
+
+  // Handle Submit
   const handleSubmit = () => {
-    console.log('Creating quiz:', formData);
+    if (!formData.title || !formData.course || !formData.questions) {
+      alert('Please fill all required fields');
+      return;
+    }
+
+    if (editingId) {
+      // Update existing quiz
+      setQuizzes(quizzes.map(q => 
+        q.id === editingId 
+          ? {
+              ...q,
+              title: formData.title,
+              course: formData.course,
+              description: formData.description,
+              questions: parseInt(formData.questions),
+              totalMarks: parseInt(formData.totalMarks),
+              passMarks: parseInt(formData.passMarks),
+              duration: `${parseInt(formData.duration.split(':')[0])} Minutes`
+            }
+          : q
+      ));
+      alert('Quiz updated successfully!');
+    } else {
+      // Create new quiz
+      const newQuiz: Quiz = {
+        id: Math.max(...quizzes.map(q => q.id), 0) + 1,
+        title: formData.title,
+        course: formData.course,
+        description: formData.description,
+        questions: parseInt(formData.questions),
+        totalMarks: parseInt(formData.totalMarks),
+        passMarks: parseInt(formData.passMarks),
+        duration: `${parseInt(formData.duration.split(':')[0])} Minutes`,
+        status: 'Draft',
+        attempts: 0,
+        createdDate: new Date().toISOString().split('T')[0]
+      };
+      setQuizzes([...quizzes, newQuiz]);
+      alert('Quiz created successfully!');
+    }
+
+    resetForm();
     setShowCreateModal(false);
-    alert('Quiz created successfully!');
-    // Reset form
+  };
+
+  // Reset form
+  const resetForm = () => {
     setFormData({
       course: '',
       title: '',
+      description: '',
       questions: '',
       totalMarks: '',
       passMarks: '',
       duration: '00:30'
     });
+    setEditingId(null);
+  };
+
+  // Handle modal close
+  const handleCloseModal = () => {
+    setShowCreateModal(false);
+    resetForm();
   };
 
   return (
-    <div className="min-h-screen ">
+    <div className="min-h-screen">
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
@@ -270,7 +374,10 @@ export default function InstructorQuizPage() {
             <button
               className="btn gap-2 text-white border-0 cursor-pointer hover:opacity-90"
               style={{ background: 'linear-gradient(135deg, #832388, #E3436B, #F89B29)' }}
-              onClick={() => setShowCreateModal(true)}
+              onClick={() => {
+                resetForm();
+                setShowCreateModal(true);
+              }}
             >
               <Plus size={20} />
               Add Quiz
@@ -416,16 +523,26 @@ export default function InstructorQuizPage() {
                           <button
                             className="btn btn-ghost btn-sm cursor-pointer"
                             title="Edit"
+                            onClick={() => handleEdit(quiz)}
                           >
                             <Edit2 size={16} />
                           </button>
-                          <button
-                            className="btn btn-ghost btn-sm text-error cursor-pointer"
-                            title="Delete"
-                            onClick={() => handleDelete(quiz.id)}
-                          >
-                            <Trash2 size={16} />
-                          </button>
+                          <div className="dropdown dropdown-end">
+                            <button className="btn btn-ghost btn-sm cursor-pointer">
+                              <MoreVertical size={16} />
+                            </button>
+                            <ul className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52">
+                              <li><a onClick={() => handleDuplicate(quiz)}>
+                                <Copy size={16} /> Duplicate
+                              </a></li>
+                              <li><a onClick={() => setShowDeleteConfirm(quiz.id)}>
+                                <Trash2 size={16} /> Delete
+                              </a></li>
+                              <li><a>
+                                <Settings size={16} /> Settings
+                              </a></li>
+                            </ul>
+                          </div>
                         </div>
                       </td>
                     </tr>
@@ -439,7 +556,7 @@ export default function InstructorQuizPage() {
           {filteredQuizzes.length > 0 && (
             <div className="flex items-center justify-between mt-6 pt-6 border-t border-base-300">
               <p className="text-sm opacity-60">
-                Showing {filteredQuizzes.length} of {quizData.length} quizzes
+                Showing {filteredQuizzes.length} of {quizzes.length} quizzes
               </p>
               <div className="join">
                 <button className="join-item btn btn-sm cursor-pointer">«</button>
@@ -452,11 +569,11 @@ export default function InstructorQuizPage() {
         </div>
       </div>
 
-      {/* Create Quiz Modal */}
+      {/* Create/Edit Quiz Modal */}
       {showCreateModal && (
         <div className="modal modal-open">
           <div className="modal-box max-w-2xl">
-            <h3 className="font-bold text-lg mb-6">Add New Quiz</h3>
+            <h3 className="font-bold text-lg mb-6">{editingId ? 'Edit Quiz' : 'Add New Quiz'}</h3>
 
             <div className="space-y-4">
               {/* Course Selection */}
@@ -476,6 +593,7 @@ export default function InstructorQuizPage() {
                   <option>JavaScript Development</option>
                   <option>Python Basics</option>
                   <option>Web Development</option>
+                  <option>Graphic Design</option>
                 </select>
               </div>
 
@@ -492,6 +610,20 @@ export default function InstructorQuizPage() {
                   className="input input-bordered"
                   value={formData.title}
                   onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                />
+              </div>
+
+              {/* Description */}
+              <div className="form-control">
+                <label className="label">
+                  <span className="label-text font-semibold">Description</span>
+                </label>
+                <textarea
+                  placeholder="Enter quiz description"
+                  className="textarea textarea-bordered"
+                  rows={2}
+                  value={formData.description}
+                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                 />
               </div>
 
@@ -546,14 +678,15 @@ export default function InstructorQuizPage() {
                 <div className="form-control">
                   <label className="label">
                     <span className="label-text font-semibold">
-                      Duration <span className="text-error">*</span>
+                      Duration (Minutes) <span className="text-error">*</span>
                     </span>
                   </label>
                   <input
-                    type="time"
+                    type="number"
+                    placeholder="30"
                     className="input input-bordered"
-                    value={formData.duration}
-                    onChange={(e) => setFormData({ ...formData, duration: e.target.value })}
+                    value={formData.duration.split(':')[0]}
+                    onChange={(e) => setFormData({ ...formData, duration: `${e.target.value}:00` })}
                   />
                 </div>
               </div>
@@ -562,7 +695,7 @@ export default function InstructorQuizPage() {
             <div className="modal-action">
               <button
                 className="btn btn-ghost cursor-pointer"
-                onClick={() => setShowCreateModal(false)}
+                onClick={handleCloseModal}
               >
                 Cancel
               </button>
@@ -571,11 +704,37 @@ export default function InstructorQuizPage() {
                 style={{ backgroundColor: '#832388' }}
                 onClick={handleSubmit}
               >
-                Add Quiz
+                {editingId ? 'Update Quiz' : 'Add Quiz'}
               </button>
             </div>
           </div>
-          <div className="modal-backdrop" onClick={() => setShowCreateModal(false)}></div>
+          <div className="modal-backdrop" onClick={handleCloseModal}></div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteConfirm !== null && (
+        <div className="modal modal-open">
+          <div className="modal-box max-w-sm">
+            <h3 className="font-bold text-lg mb-4">Delete Quiz</h3>
+            <p className="mb-6">Are you sure you want to delete this quiz? This action cannot be undone.</p>
+            <div className="modal-action">
+              <button
+                className="btn btn-ghost cursor-pointer"
+                onClick={() => setShowDeleteConfirm(null)}
+              >
+                Cancel
+              </button>
+              <button
+                className="btn text-white border-0 cursor-pointer"
+                style={{ backgroundColor: '#FF0F7B' }}
+                onClick={() => handleDelete(showDeleteConfirm)}
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+          <div className="modal-backdrop" onClick={() => setShowDeleteConfirm(null)}></div>
         </div>
       )}
     </div>

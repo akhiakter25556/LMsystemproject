@@ -28,7 +28,7 @@ export type { INotificationDocument } from "./Notification";
 export function ensureModelsRegistered() {
   const models = { User, Course, Blog, Enrollment, Transaction, Message, Notification };
 
-  console.log("📋 Registered Models:", Object.keys(mongoose.models));
+
 
   return models;
 }

@@ -131,19 +131,9 @@ export async function GET(
       path: "/",
     });
 
-    console.log("🍪 Cookie set successfully");
-    console.log("=" .repeat(50));
-    console.log("✅ GitHub OAuth Flow Completed Successfully!\n");
-
     return response;
     
   } catch (err: any) {
-    console.error("\n❌ GitHub OAuth Error:");
-    console.error("=" .repeat(50));
-    console.error("Error Message:", err.message);
-    console.error("Error Stack:", err.stack);
-    console.error("=" .repeat(50) + "\n");
-    
     return NextResponse.redirect(`${APP_URL}/login?error=${encodeURIComponent(err.message)}`);
   }
 }

@@ -77,7 +77,7 @@ export async function middleware(req: NextRequest) {
       const isAllowed = allowed.some(route => pathname.startsWith(route));
 
       if (!isAllowed) {
-        console.log(`🚫 ${role} tried to access ${pathname} → redirecting`);
+
         return NextResponse.redirect(
           new URL(roleDashboard[role] || "/dashboard/student", req.url)
         );

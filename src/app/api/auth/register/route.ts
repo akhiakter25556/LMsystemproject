@@ -118,8 +118,6 @@ export async function POST(req: NextRequest) {
       { status: 201 }
     );
   } catch (err: any) {
-    console.error("❌ Register error:", err.message);
-
     if (err.code === 11000) {
       if (err.keyPattern?.email) {
         return NextResponse.json({ error: "Email already exists" }, { status: 400 });

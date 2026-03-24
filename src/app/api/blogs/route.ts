@@ -82,7 +82,6 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ success: true, blogs });
 
   } catch (error: any) {
-    console.error("GET /api/blogs:", error.message);
     return NextResponse.json({ success: false, message: "Server error" }, { status: 500 });
   }
 }
@@ -216,7 +215,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ success: true, blog, message }, { status: 201 });
 
   } catch (error: any) {
-    console.error("POST /api/blogs:", error.message);
     return NextResponse.json({ success: false, message: error.message || "Server error" }, { status: 500 });
   }
 }

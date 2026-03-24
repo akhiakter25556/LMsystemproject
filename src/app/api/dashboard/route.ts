@@ -168,7 +168,6 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "Invalid role" }, { status: 400 });
 
   } catch (err: any) {
-    console.error("❌ Dashboard error:", err.message);
     return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }

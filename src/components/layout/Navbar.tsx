@@ -165,7 +165,7 @@ const Navbar = () => {
 
   const navLinks = [
     { name: "Course Details", href: "/courses" },
-    { name: "Student Feedback", href: "/feedback" },
+ 
     { name: "Blog", href: "/blog" },
     { name: "About", href: "/about" },
   ];
@@ -276,6 +276,8 @@ const Navbar = () => {
                     Helpdesk
                   </Link>
                 )}
+                
+                
               </div>
 
               <div className="flex items-center gap-5 border-l border-gray-200 dark:border-gray-700 pl-6 nav-link-animate" style={{ animationDelay: "0.55s" }}>
